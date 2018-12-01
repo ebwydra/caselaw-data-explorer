@@ -61,28 +61,41 @@ def get_courts_data():
 
     return list_of_courts
 
-def get_cap_data(url):
-    if url in CACHE_DICTION:
-        # print("Getting cached data")
-        resp_dict = CACHE_DICTION[url]
-    else:
-        # print("Getting new data")
-        resp = requests.get(url, headers = {'Authorization': CAPAPI_TOKEN})
-        resp_dict = json.loads(resp.text)
-        CACHE_DICTION[url] = resp_dict
-        f = open(CACHE_FNAME, 'w')
-        f.write(json.dumps(CACHE_DICTION))
-        f.close
-    return resp_dict
+def get_cap_data():
 
-first_url = "https://api.case.law/v1/cases/?full_case=true&jurisdiction=us"
+    url = "https://api.case.law/v1/cases/?full_case=true&jurisdiction=us&decision_date_min=2016-01-01"
+    page = 0
+    list_of_case_tups = []
 
-# data = get_cap_data(first_url)
-# print(type(data))
-# print(data['count']) # 1700254
-# print(data['next']) # https://api.case.law/v1/cases/?cursor=cD0xNzk1LTAxLTAx&full_case=true&jurisdiction=us
-# print(data['previous'])
-# print(len(data['results']))
+    while page < 10: # I want the first 10 pages
+        if url in CACHE_DICTION:
+            # print("Getting cached data")
+            resp_dict = CACHE_DICTION[url]
+        else:
+            # print("Getting new data")
+            resp = requests.get(url, headers = {'Authorization': CAPAPI_TOKEN})
+            resp_dict = json.loads(resp.text)
+            CACHE_DICTION[url] = resp_dict
+            f = open(CACHE_FNAME, 'w')
+            f.write(json.dumps(CACHE_DICTION))
+            f.close
+
+        url = resp_dict['next']
+        page += 1
+
+        for case in resp_dict['results']: # there are 100 in a page
+            name = case['name']
+            name_abbr = case['name_abbreviation']
+            date = case['decision_date']
+            court = case['court']['name_abbreviation']
+            text = ""
+            for opinion in case['casebody']['data']['opinions']:
+                text += opinion['text']
+
+            case_tup = (name, name_abbr, date, court, text)
+            list_of_case_tups.append(case_tup)
+
+    return list_of_case_tups
 
 ''' Create database '''
 
@@ -206,5 +219,31 @@ def create_db():
         cur.execute(statement, new_tup)
         conn.commit()
 
+    # Cases table
+    cases_list = get_cap_data()
+    for case in cases_list:
+        # Get Court ID - (name, name_abbr, date, court, text) - case[3]
+        statement = '''
+        SELECT Id
+        FROM DistrictCourts
+        WHERE Citation LIKE \"{}\"
+        '''.format(case[3])
+        cur.execute(statement)
+        result = cur.fetchone()
+        try:
+            id = result[0]
+        except:
+            id = None
+        case_l = list(case)
+        case_l.append(id)
+        case_l.remove(case_l[3])
+        new_tup = tuple(case_l)
+
+        statement = '''
+        INSERT INTO Cases (Name, NameAbbr, DecisionDate, CaseBody, CourtId)
+        VALUES (?, ?, ?, ?, ?)
+        '''
+        cur.execute(statement, new_tup)
+        conn.commit()
 
 create_db()
