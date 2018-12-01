@@ -193,13 +193,14 @@ def create_db():
         court_l = list(court)
         court_l.append(id)
         court_l.remove(court_l[0]) # get rid of state name
+        circuit = court_l[2].strip("abcdefghijklmopqrstuvwxyz")
+        court_l.remove(court_l[2])
+        court_l.append(circuit)
         new_tup = tuple(court_l)
         # print(new_tup)
 
-        # ('District of Wyoming', 'D. Wyo.', '10th', '1890', '3', 50)
-
         statement = '''
-        INSERT INTO DistrictCourts (CourtName, Citation, CircuitCourt, Established, NumJudges, StateId)
+        INSERT INTO DistrictCourts (CourtName, Citation, Established, NumJudges, StateId, CircuitCourt)
         VALUES (?, ?, ?, ?, ?, ?)
         '''
         cur.execute(statement, new_tup)
