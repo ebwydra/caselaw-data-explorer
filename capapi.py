@@ -206,7 +206,7 @@ def create_db():
         court_l = list(court)
         court_l.append(id)
         court_l.remove(court_l[0]) # get rid of state name
-        circuit = court_l[2].strip("abcdefghijklmopqrstuvwxyz")
+        circuit = court_l[2].strip("abcdefghijklmnopqrstuvwxyz")
         court_l.remove(court_l[2])
         court_l.append(circuit)
         new_tup = tuple(court_l)
@@ -218,6 +218,14 @@ def create_db():
         '''
         cur.execute(statement, new_tup)
         conn.commit()
+
+    statement = '''
+    UPDATE DistrictCourts
+    SET StateId = 51
+    WHERE CourtName LIKE "District of Columbia"
+    '''
+    cur.execute(statement)
+    conn.commit()
 
     # Cases table
     cases_list = get_cap_data()
