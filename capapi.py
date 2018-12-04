@@ -72,12 +72,12 @@ def get_cap_data():
     page = 0
     list_of_case_tups = []
 
-    while page < 10: # I want the first 10 pages
+    while page < 25: # I want the first 25 pages (2,500 cases)
         if url in CACHE_DICTION:
             # print("Getting cached data")
             resp_dict = CACHE_DICTION[url]
         else:
-            # print("Getting new data")
+            print("Getting new data")
             resp = requests.get(url, headers = {'Authorization': "Token " + CAPAPI_KEY})
             resp_dict = json.loads(resp.text)
             CACHE_DICTION[url] = resp_dict
@@ -649,13 +649,13 @@ def play():
             ''')
 
         elif command == "all_cases":
-            print("\nCreating a map of all district court cases by state in a browser window...")
+            print("\nCreating a map of all federal district court cases by state in a browser window...")
             make_map_of_cases()
 
         elif command == "cases_matching":
             if len(words) > 1:
                 word = words[1]
-                print("\nCreating a table of all district court cases containing \'{}\'...".format(word))
+                print("\nCreating a table of all federal district court cases containing \'{}\'...".format(word))
                 make_table_with_word(word)
             else:
                 print("\nThe 'cases_matching' command must be used with a word (e.g., 'cases_matching woman').")
@@ -663,7 +663,7 @@ def play():
         elif command == "map_matching":
             if len(words) > 1:
                 word = words[1]
-                print("\nCreating a map displaying percentage of district court cases by state containing \'{}\'...".format(word))
+                print("\nCreating a map displaying percentage of federal district court cases by state containing \'{}\'...".format(word))
                 make_map_of_word(word)
             else:
                 print("\nThe 'map_matching' command must be used with a word (e.g., 'map_matching woman').")
@@ -680,5 +680,5 @@ def play():
             print("\nPlease enter a valid command, or type 'help' to view a list of available commands.")
 
 if __name__=="__main__":
-    #create_db()
+    # create_db()
     play()

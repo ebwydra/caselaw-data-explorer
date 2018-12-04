@@ -16,7 +16,7 @@ class TestAccess(unittest.TestCase):
 
         self.assertIs(type(result), list)
         self.assertEqual(type(result[0]), tuple)
-        self.assertEqual(len(result), 1000)
+        self.assertGreaterEqual(len(result), 1000)
 
     def test_wiki_scrape(self):
         result = get_courts_data()
@@ -64,7 +64,7 @@ class TestStorage(unittest.TestCase):
         results = cur.execute(statement)
         result_list = results.fetchall()
 
-        self.assertEqual(len(result_list), 1000)
+        self.assertGreaterEqual(len(result_list), 1000)
 
         statement = '''
         SELECT *
