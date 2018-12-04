@@ -1,12 +1,12 @@
 # SI507-Final-ebwydra
 
-Work in progress...
+Harvard University recently completed a massive project to expand access to U.S. caselaw by "digitizing roughly 40 million pages of court decisions contained in roughly 40,000 bound volumes owned by the Harvard Law School Library." This program uses data obtained from the Caselaw Access Project (CAP) API to provide insights into U.S. federal caselaw, particularly at the district court level.
 
 ## Data sources
 
 ### Caselaw Access Project (CAP) API
 
-The CAP API provides access to information about all 6,000,000+ official US court cases published in books from 1658 to 2018. More information about the CAP API can be found at the following link: https://case.law/api/.
+The CAP API provides access to information about all 6,000,000+ official U.S. court cases published in books from 1658 to 2018. More information about the CAP API can be found at the following link: https://case.law/api/.
 
 The 'get_cap_data()' function makes a call to the CAP API 'cases' endpoint for information about 2,500 U.S. federal ('jurisdiction=us') court cases beginning on January 1, 2016 ('decision_date_min=2016-01-01'). Although some information about the cases is accessible without an API key, this project requests the full text of cases ('full_case=true') which requires authentication. The data obtained from the CAP API populates the 'Cases' table of the 'law.db' database.
 
@@ -18,7 +18,7 @@ The 'get_courts_data()' function scrapes the Wikipedia page 'List of United Stat
 
 ### CSV of U.S. states
 
-The 'state_table.csv' file included in this repository was downloaded from https://statetable.com/ and contains structured information about 56 U.S. states and territories (including Washington, D.C.). This information is used to populate the 'States' table of the 'law.db' database.
+The 'state_table.csv' file included in this repository was downloaded from Dave Ross's https://statetable.com/ and contains structured information about 56 U.S. states and territories (including Washington, D.C.). This information is used to populate the 'States' table of the 'law.db' database.
 
 ## Running the program
 
@@ -62,13 +62,13 @@ When you run the 'capapi.py' file, you will be greeted by a message that reads '
 ## Under the hood
 
 ### Outline
-1. Lines 1-24: import statements, plotly configuration, global variables, caching setup
-2. Lines 25-104: definition of functions that get data from the internet (i.e., from the CAP API and Wikipedia)
-3. Lines 105-261: definition of function to (re)create 'law.db' database from data in cache
-4. Lines 262-410: definitions of functions that query the 'law.db' database and process data for display (see below)
-5. Lines 411-605: definitions of functions that use plotly to present data in four different ways (see below)
-6. Lines 606-685: definition of function that controls the interactive prompt
-7. Lines 686-688: showtime ;-)
+1. Lines 1 - 24: import statements, plotly configuration, global variables, caching setup
+2. Lines 25 - 104: definition of functions that get data from the internet (i.e., from the CAP API and Wikipedia)
+3. Lines 105 - 261: definition of function to (re)create 'law.db' database from data in cache
+4. Lines 262 - 410: definitions of functions that query the 'law.db' database and process data for display (see below)
+5. Lines 411 - 605: definitions of functions that use plotly to present data in four different ways, plus a little more processing (see below)
+6. Lines 606 - 685: definition of interactive prompt function
+7. Lines 686 - 688: showtime ;-)
 
 ### Important data processing functions
 
