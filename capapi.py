@@ -411,7 +411,7 @@ def get_freq_by_time_for(list_of_words):
 ''' Functions that display data '''
 
 '''
-A choropleth map (https://www.plot.ly/python/choropleth-maps/) of the United States that presents the number or percentage of district/territorial court cases from each state (that is, the sum of the count of cases in each of the districts comprising the state).
+A choropleth map (https://www.plot.ly/python/choropleth-maps/) of the United States that presents the number of district/territorial court cases from each state (that is, the sum of the count of cases in each of the districts comprising the state).
 
 Helper function: get_cases_by_state() returns list of tuples: (state_abbr, state_name, count, percent)
 '''
@@ -601,8 +601,84 @@ def make_line_chart_for_list(list_of_words):
     fig = dict(data=data, layout=layout)
     py.plot(fig, filename='line-plot')
 
+# make_line_chart_for_list(["woman","women"])
 
-make_line_chart_for_list(["woman","women"])
+''' Add interactive functionality '''
 
-# if __name__=="__main__":
-#     # create_db()
+def play():
+
+    option = ""
+    base_prompt = "Enter command (or 'help' for options): "
+    feedback = ""
+
+    while True:
+        action = input(feedback + "\n" + base_prompt)
+        feedback = ""
+        words = action.split()
+
+        if len(words) > 0:
+            command = words[0]
+        else:
+            command = None
+
+        if command == "exit":
+            print("\nExiting...\n")
+            return
+
+        elif command == "help":
+            print( '''
+                all_cases
+                    creates a map of the United States that presents the number of district/territorial court cases
+                    from each state (that is, the sum of the count of cases in each of the districts comprising the state).
+
+                cases_matching <word>
+                     creates a table displaying all court cases containing a particular word or phrase, specified by the user.
+
+                map_matching <word>
+                    creates a map of the United States that presents the percentage of court cases containing a particular
+                    word or phrase, specified by the user, by state.
+
+                time_plot <word or list of words>
+                    creates a line chart showing the frequency of one or more words, specified by the user, over time.
+
+                exit
+                    exits the program
+
+                help
+                    lists available commands (these instructions)
+            ''')
+
+        elif command == "all_cases":
+            print("\nCreating a map of all district court cases by state in a browser window...")
+            make_map_of_cases()
+
+        elif command == "cases_matching":
+            if len(words) > 1:
+                word = words[1]
+                print("\nCreating a table of all district court cases containing \'{}\'...".format(word))
+                make_table_with_word(word)
+            else:
+                print("\nThe 'cases_matching' command must be used with a word (e.g., 'cases_matching woman').")
+
+        elif command == "map_matching":
+            if len(words) > 1:
+                word = words[1]
+                print("\nCreating a map displaying percentage of district court cases by state containing \'{}\'...".format(word))
+                make_map_of_word(word)
+            else:
+                print("\nThe 'map_matching' command must be used with a word (e.g., 'map_matching woman').")
+
+        elif command == "time_plot":
+            if len(words) == 1:
+                print("\nThe 'time_plot' command must be used with one or more words (e.g., 'time_plot woman women gender').")
+            else:
+                list_of_words = words[1:]
+                print("\nCreating a line chart displaying the frequency of the specified words over time...")
+                make_line_chart_for_list(list_of_words)
+
+        else:
+            print("\nPlease enter a valid command, or type 'help' to view a list of available commands.")
+
+if __name__=="__main__":
+    #create_db()
+    play()
