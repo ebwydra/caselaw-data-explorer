@@ -6,6 +6,7 @@ import sqlite3 as sqlite
 from secrets import *
 import plotly
 import plotly.plotly as py
+import plotly.graph_objs as go
 
 plotly.tools.set_credentials_file(username=PLOTLY_USERNAME, api_key=PLOTLY_API_KEY)
 
@@ -355,11 +356,6 @@ def get_percent_by_state_containing(word):
 
     return return_list # list of tuples: (abbr, percent)
 
-
-'''
-A table (https://www.plot.ly/python/table/) that displays all court cases containing a particular word or phrase (specified by the user), or matching other specified requirements such as court, state, year (also specified by the user).
-'''
-
 def get_list_of_cases_containing(word):
     conn = sqlite.connect(DBNAME)
     cur = conn.cursor()
@@ -423,7 +419,6 @@ A choropleth map (https://www.plot.ly/python/choropleth-maps/) of the United Sta
 
 Helper function: get_cases_by_state() returns list of tuples: (state_abbr, state_name, count, percent)
 '''
-
 def make_map_of_cases(): # (state_abbr, state_name, count, percent)
 
     list_of_cases_by_state = get_cases_by_state()
@@ -469,11 +464,10 @@ def make_map_of_cases(): # (state_abbr, state_name, count, percent)
 # make_map_of_cases()
 
 '''
-A choropleth map of the United States that presents the percentage of court cases containing a particular word or phrase (specified by the user) by state for a particular year (also specified by the user).
+A choropleth map of the United States that presents the percentage of court cases containing a particular word or phrase, specified by the user.
 
-helper function: get_percent_by_state_containing(word) returns list of tuples: (abbr, percent)
+Helper function: get_percent_by_state_containing(word) returns list of tuples: (abbr, percent)
 '''
-
 def make_map_of_word(word):
 
     state_percent_list = get_percent_by_state_containing(word)
@@ -518,5 +512,50 @@ def make_map_of_word(word):
 
 # make_map_of_word("woman")
 
-if __name__=="__main__":
-    create_db()
+'''
+A table (https://www.plot.ly/python/table/) that displays all court cases containing a particular word or phrase (specified by the user).
+
+Helper function: get_list_of_cases_containing(word) returns list of tuples: (state abbr, state name, case name, case abbr, court name, court abbr)
+'''
+
+def make_table_with_word(word):
+    case_list = get_list_of_cases_containing(word)
+
+    header_list = ["Case Name", "Case Abbreviation", "Court", "State"]
+
+    case_name_list = []
+    case_abbr_list = []
+    court_list = []
+    state_list = []
+
+    for case in case_list:
+        case_name = case[2]
+        case_name_list.append(case_name)
+
+        case_abbr = case[3]
+        case_abbr_list.append(case_abbr)
+
+        court = "{} ({})".format(case[4], case[5])
+        court_list.append(court)
+
+        state = "{} ({})".format(case[1], case[0])
+        state_list.append(state)
+
+    trace = go.Table(
+    columnwidth = [100,100,100,60],
+    header=dict(values=header_list,
+                line = dict(color='#7D7F80'),
+                fill = dict(color='#a1c3d1'),
+                align = ['left'] * 5),
+    cells=dict(values=[case_name_list, case_abbr_list, court_list, state_list],
+               line = dict(color='#7D7F80'),
+               fill = dict(color='#EDFAFF'),
+               align = ['left'] * 5))
+
+    data = [trace]
+    py.plot(data, filename = 'case_table')
+
+# make_table_with_word("woman")
+
+# if __name__=="__main__":
+#     # create_db()
