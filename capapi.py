@@ -375,10 +375,6 @@ def get_list_of_cases_containing(word):
 
     return result_list # list of tuples: (state abbr, state name, case name, case abbr, court name, court abbr)
 
-'''
-Line chart (https://www.plot.ly/python/line-charts/) displaying the frequency of one or more particular words or phrases (specified by the user) in the full text of cases from all courts over a period of time.
-'''
-
 def get_freq_by_time_for(list_of_words):
     conn = sqlite.connect(DBNAME)
     cur = conn.cursor()
@@ -556,6 +552,57 @@ def make_table_with_word(word):
     py.plot(data, filename = 'case_table')
 
 # make_table_with_word("woman")
+
+'''
+Line chart (https://www.plot.ly/python/line-charts/) displaying the frequency of one or more particular words or phrases (specified by the user) in the full text of cases from all courts over a period of time.
+
+Helper function get_freq_by_time_for(list_of_words) returns list of dictionaries: keys are dates, values are freq.
+'''
+
+def make_line_chart_for_list(list_of_words):
+
+    result_list = get_freq_by_time_for(list_of_words)
+
+    dates_list = list(result_list[0].keys())
+    # print(dates_list)
+
+    data_tup_list = []
+    index = 0
+    for result in result_list:
+        name = list_of_words[index]
+        # print(name)
+        freq_list = []
+        for date in list(result.keys()):
+            freq_list.append(result[date])
+        # print(freq_list)
+        data_tup = (name, freq_list)
+        data_tup_list.append(data_tup)
+        index += 1
+
+    # print(data_tup_list)
+    trace_list = []
+    for data_tup in data_tup_list:
+        trace_obj = go.Scatter(
+            x = dates_list,
+            y = data_tup[1],
+            name = data_tup[0],
+            # line = dict(
+            # color = ('rgb(22, 96, 167)'),
+            # width = 4,)
+            )
+        trace_list.append(trace_obj)
+
+    data = trace_list # list of trace objects
+    layout = dict(title = 'Frequency of Words in U.S. Case Law by Date',
+              xaxis = dict(title = 'Date'),
+              yaxis = dict(title = 'Frequency'),
+              )
+
+    fig = dict(data=data, layout=layout)
+    py.plot(fig, filename='line-plot')
+
+
+make_line_chart_for_list(["woman","women"])
 
 # if __name__=="__main__":
 #     # create_db()
