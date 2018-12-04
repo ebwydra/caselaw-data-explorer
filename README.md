@@ -19,3 +19,44 @@ The 'get_courts_data()' function scrapes the Wikipedia page 'List of United Stat
 ### CSV of U.S. states
 
 The 'state_table.csv' file included in this repository was downloaded from https://statetable.com/ and contains structured information about 56 U.S. states and territories (including Washington, D.C.). This information is used to populate the 'States' table of the 'law.db' database.
+
+## Running the Program
+
+### Getting started
+
+The 'capapi.py' file is the main program file, and 'requirements.txt' can be used to set up a virtual environment in which to run the program.
+
+The program file will attempt to import API keys, etc. from a file called 'secrets.py' which must exist in the same directory as 'capapi.py' and must include three pieces of information for the program to run properly (see 'secrets_example.py'):
+
+1) Caselaw Access Project API key, as 'CAPAPI_KEY' [Note: if you're not attempting to rebuild the database from scratch, this can be left as an empty string.]
+2) Plotly username, as 'PLOTLY_USERNAME'
+3) Plotly API key, as 'PLOTLY_API_KEY'
+
+(See https://plot.ly/python/getting-started/ for more information about getting started with Plotly.)
+
+The database and cache are pretty large: >50MB each. It is therefore recommended that you download the 'law.db' database directly rather than rebuilding the database yourself.
+
+If for some reason you would like to rebuild the database yourself, you have a couple of options...
+
+Using my cached data:
+1) The 'cache.json' and 'state_table.csv' files must be stored in the same directory as 'capapi.py'. Do not change the file names.
+2) Uncomment line 683 ('create_db()') in the 'capapi.py' file.
+3) Run the 'capapi.py' file.
+4) Be a little patient.
+
+From scratch:
+1) The 'state_table.csv' files must be stored in the same directory as 'capapi.py'. Do not change the file name.
+2) Ensure that you have an API key that provides you with unlimited research access to the CAP API.
+3) Uncomment line 683 ('create_db()') in the 'capapi.py' file.
+4) Run the 'capapi.py' file.
+5) Be very patient.
+
+### Using the interactive prompt
+
+When you run the 'capapi.py' file, you will be greeted by a message that reads 'Enter command (or 'help' for options):'. The available commands are as follows:
+* exit - exits the program
+* help - displays list of available commands (similar to this)
+* all_cases - creates and displays a map of the United States showing total number of district court cases in each state for the period covered by the database (~January 2016)
+* cases_matching <word> - creates and displays a table listing all of the cases that contain the specified word in their full text (e.g., 'cases_matching gender')
+* map_matching <word> - creates and displays a map of the United States presenting the percentage of cases in each state containing the specified word (e.g., 'map_matching women')
+* time_plot <word or list of words> - creates and displays a line chart presenting the frequency of one or more words in all U.S. federal court cases for the period of time covered by the database (~January 2016) (e.g., 'time_plot woman women gender')

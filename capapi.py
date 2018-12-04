@@ -628,25 +628,29 @@ def play():
         elif command == "help":
             print( '''
                 all_cases
-                    creates a map of the United States that presents the number of district/territorial court cases
-                    from each state (that is, the sum of the count of cases in each of the districts comprising the state).
+                    creates a map of the United States that presents the number
+                    of district/territorial court cases from each state (that
+                    is, the sum of the count of cases in each of the districts
+                    comprising the state).
 
                 cases_matching <word>
-                     creates a table displaying all court cases containing a particular word or phrase, specified by the user.
+                     creates a table displaying all court cases containing a
+                     particular word or phrase, specified by the user.
 
                 map_matching <word>
-                    creates a map of the United States that presents the percentage of court cases containing a particular
+                    creates a map of the United States that presents the
+                    percentage of court cases containing a particular
                     word or phrase, specified by the user, by state.
 
                 time_plot <word or list of words>
-                    creates a line chart showing the frequency of one or more words, specified by the user, over time.
+                    creates a line chart showing the frequency of one or more
+                    words, specified by the user, over time.
 
                 exit
                     exits the program
 
                 help
-                    lists available commands (these instructions)
-            ''')
+                    lists available commands (these instructions)''')
 
         elif command == "all_cases":
             print("\nCreating a map of all federal district court cases by state in a browser window...")
