@@ -34,9 +34,7 @@ The program file will attempt to import API keys, etc. from a file called 'secre
 
 (See https://plot.ly/python/getting-started/ for more information about getting started with Plotly.)
 
-The database and cache are pretty large: >50MB each. It is therefore recommended that you download the 'law.db' database directly rather than rebuilding the database yourself.
-
-If for some reason you would like to rebuild the database yourself, you have a couple of options...
+The database and cache are pretty large: >50MB each. It is therefore recommended that you download the 'law.db' database directly rather than rebuilding the database yourself. If for some reason you would like to rebuild the database yourself, you have a couple of options...
 
 Using my cached data:
 1) The 'cache.json' and 'state_table.csv' files must be stored in the same directory as 'capapi.py'. Do not change the file names.
@@ -55,8 +53,8 @@ From scratch:
 
 When you run the 'capapi.py' file, you will be greeted by a message that reads 'Enter command (or 'help' for options):'. The available commands are as follows:
 * exit - exits the program
-* help - displays list of available commands (similar to this)
-* all_cases - creates and displays a map of the United States showing total number of district court cases in each state for the period covered by the database (~January 2016)
-* cases_matching <word> - creates and displays a table listing all of the cases that contain the specified word in their full text (e.g., 'cases_matching gender')
-* map_matching <word> - creates and displays a map of the United States presenting the percentage of cases in each state containing the specified word (e.g., 'map_matching women')
-* time_plot <word or list of words> - creates and displays a line chart presenting the frequency of one or more words in all U.S. federal court cases for the period of time covered by the database (~January 2016) (e.g., 'time_plot woman women gender')
+* help - displays list of available commands and what they do
+* all_cases - creates and displays a map of the United States showing total number of district court cases in each state for the time period covered by the database (i.e., 2016-01-01 though 2016-02-04 for my database of 2,500 records)
+* cases_matching <word> - creates and displays a table listing all of the cases from the time period covered by the database that contain the specified word in their full text (e.g., 'cases_matching gender')
+* map_matching <word> - creates and displays a map of the United States presenting the percentage of cases from the time period covered by the database in each state containing the specified word (e.g., 'map_matching women')
+* time_plot <word or list of words> - creates and displays a line chart presenting the frequency of one or more words in all U.S. federal court cases (not just district courts!) for the period of time covered by the database (e.g., 'time_plot woman women gender')
