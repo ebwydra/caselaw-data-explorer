@@ -386,15 +386,6 @@ def get_list_of_cases_containing(word):
 
 '''
 Line chart (https://www.plot.ly/python/line-charts/) displaying the frequency of one or more particular words or phrases (specified by the user) in the full text of cases from all courts over a period of time.
-
-SELECT Cases.DecisionDate, COUNT(*)
-FROM Cases
-JOIN DistrictCourts
-ON Cases.CourtId = DistrictCourts.Id
-JOIN States
-ON DistrictCourts.StateId = States.Id
-WHERE Cases.CaseBody LIKE "%women%"
-GROUP BY Cases.DecisionDate
 '''
 
 def get_freq_by_time_for(list_of_words):
@@ -428,8 +419,7 @@ def get_freq_by_time_for(list_of_words):
             word_dict[date] = count/len(date_dictionary[date])
         list_of_dicts.append(word_dict)
 
-    return list_of_dicts # list of dictionaries corresponding to each word where key is date and value is frequency of the word 
+    return list_of_dicts # list of dictionaries corresponding to each word where key is date and value is frequency of the word
 
 if __name__=="__main__":
-    pass
-    # create_db()
+    create_db()
