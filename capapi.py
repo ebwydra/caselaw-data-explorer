@@ -260,10 +260,6 @@ def create_db():
 
 ''' Functions that access and process data from the database '''
 
-'''
-A choropleth map (https://www.plot.ly/python/choropleth-maps/) of the United States that presents the number or percentage of district/territorial court cases from each state (that is, the sum of the count of cases in each of the districts comprising the state) for a particular year (specified by the user).
-'''
-
 def get_cases_by_state():
     conn = sqlite.connect(DBNAME)
     cur = conn.cursor()
@@ -304,11 +300,6 @@ def get_cases_by_state():
         return_list.append(new_tup)
 
     return return_list # list of tuples: (state_abbr, state_name, count, percent)
-
-
-'''
-A choropleth map of the United States that presents the percentage of court cases containing a particular word or phrase (specified by the user) by state for a particular year (also specified by the user).
-'''
 
 def get_percent_by_state_containing(word):
     conn = sqlite.connect(DBNAME)
@@ -475,7 +466,57 @@ def make_map_of_cases(): # (state_abbr, state_name, count, percent)
     fig = dict(data=data, layout=layout)
     py.plot(fig, filename='total-cases-by-state')
 
-make_map_of_cases()
+# make_map_of_cases()
+
+'''
+A choropleth map of the United States that presents the percentage of court cases containing a particular word or phrase (specified by the user) by state for a particular year (also specified by the user).
+
+helper function: get_percent_by_state_containing(word) returns list of tuples: (abbr, percent)
+'''
+
+def make_map_of_word(word):
+
+    state_percent_list = get_percent_by_state_containing(word)
+
+    state_list = []
+    z_list = []
+
+    for state in state_percent_list:
+        state_list.append(state[0])
+        z_list.append(round(state[1],2))
+
+    scl = [[0.0, 'rgb(242,240,247)'],[0.2, 'rgb(218,218,235)'],[0.4, 'rgb(188,189,220)'],[0.6, 'rgb(158,154,200)'],[0.8, 'rgb(117,107,177)'],[1.0, 'rgb(84,39,143)']]
+
+    data = [ dict(
+        type='choropleth',
+        colorscale = scl,
+        autocolorscale = False,
+        locations = state_list,
+        z = z_list,
+        locationmode = 'USA-states',
+        # text = df['text'],
+        marker = dict(
+            line = dict (
+                color = 'rgb(255,255,255)',
+                width = 2
+            ) ),
+        colorbar = dict(
+            title = "Percentage of Cases")
+        ) ]
+
+    layout = dict(
+        title = 'Percentage of U.S. District Court Cases Containing \"{}\" by State'.format(word),
+        geo = dict(
+            scope='usa',
+            projection=dict( type='albers usa' ),
+            showlakes = True,
+            lakecolor = 'rgb(255, 255, 255)'),
+             )
+
+    fig = dict(data=data, layout=layout)
+    py.plot(fig, filename='word-by-state')
+
+# make_map_of_word("woman")
 
 if __name__=="__main__":
     create_db()
