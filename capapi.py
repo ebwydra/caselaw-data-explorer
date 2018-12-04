@@ -254,4 +254,182 @@ def create_db():
         cur.execute(statement, new_tup)
         conn.commit()
 
-create_db()
+''' Functions that access and process data from the database '''
+
+'''
+A choropleth map (https://www.plot.ly/python/choropleth-maps/) of the United States that presents the number or percentage of district/territorial court cases from each state (that is, the sum of the count of cases in each of the districts comprising the state) for a particular year (specified by the user).
+'''
+
+def get_cases_by_state():
+    conn = sqlite.connect(DBNAME)
+    cur = conn.cursor()
+
+    # Get total # of cases in all states
+    statement = '''
+    SELECT COUNT(*)
+    FROM Cases
+    JOIN DistrictCourts
+    ON Cases.CourtId = DistrictCourts.Id
+    JOIN States
+    ON DistrictCourts.StateId = States.Id
+    '''
+    results = cur.execute(statement)
+    n_tup = results.fetchone()
+    n = n_tup[0] # n is an int representing the total # of district court cases in db
+
+    statement = '''
+    SELECT States.Abbr, States.Name, COUNT(*)
+    FROM Cases
+    JOIN DistrictCourts
+    ON Cases.CourtId = DistrictCourts.Id
+    JOIN States
+    ON DistrictCourts.StateId = States.Id
+    GROUP BY States.Abbr
+    '''
+    results = cur.execute(statement)
+    result_list = results.fetchall() # list of tuples
+
+    return_list = []
+
+    for result_tup in result_list:
+        state_abbr = result_tup[0]
+        state_name = result_tup[1]
+        count = result_tup[2]
+        percent = count/n
+        new_tup = (state_abbr, state_name, count, percent)
+        return_list.append(new_tup)
+
+    return return_list # list of tuples: (state_abbr, state_name, count, percent)
+
+
+'''
+A choropleth map of the United States that presents the percentage of court cases containing a particular word or phrase (specified by the user) by state for a particular year (also specified by the user).
+'''
+
+def get_percent_by_state_containing(word):
+    conn = sqlite.connect(DBNAME)
+    cur = conn.cursor()
+
+    # get # of cases in each state
+    statement = '''
+    SELECT States.Abbr, COUNT(*)
+    FROM Cases
+    JOIN DistrictCourts
+    ON Cases.CourtId = DistrictCourts.Id
+    JOIN States
+    ON DistrictCourts.StateId = States.Id
+    GROUP BY States.Abbr
+    '''
+    results = cur.execute(statement)
+    state_list = results.fetchall() # list of tuples
+    total_dict = {}
+    for state in state_list:
+        total_dict[state[0]] = state[1] # keys are state abbreviations, values are total # of cases
+
+    # get # of cases containing word in each state
+    statement = '''
+    SELECT States.Abbr, COUNT(*)
+    FROM Cases
+    JOIN DistrictCourts
+    ON Cases.CourtId = DistrictCourts.Id
+    JOIN States
+    ON DistrictCourts.StateId = States.Id
+    WHERE Cases.CaseBody LIKE \"%{}%\"
+    GROUP BY States.Abbr
+    '''.format(word)
+    results = cur.execute(statement)
+    case_matching_list = results.fetchall()
+
+    case_matching_dict = {}
+    for case in case_matching_list:
+        case_matching_dict[case[0]] = case[1] # keys are state abbreviations, values are # of cases matching word
+
+    result_dict = {}
+    for state in list(total_dict.keys()):
+        if state in case_matching_dict:
+            result_dict[state] = case_matching_dict[state]/total_dict[state]
+        else:
+            result_dict[state] = 0
+
+    return_list = []
+    for state in list(result_dict.keys()):
+        abbr = state
+        percent = result_dict[state]
+        tup = (abbr, percent)
+        return_list.append(tup)
+
+    return return_list # list of tuples: (abbr, percent)
+
+
+'''
+A table (https://www.plot.ly/python/table/) that displays all court cases containing a particular word or phrase (specified by the user), or matching other specified requirements such as court, state, year (also specified by the user).
+'''
+
+def get_list_of_cases_containing(word):
+    conn = sqlite.connect(DBNAME)
+    cur = conn.cursor()
+    statement = '''
+    SELECT States.Abbr, States.Name, Cases.Name, Cases.NameAbbr, DistrictCourts.CourtName, DistrictCourts.Citation
+    FROM Cases
+    JOIN DistrictCourts
+    ON Cases.CourtId = DistrictCourts.Id
+    JOIN States
+    ON DistrictCourts.StateId = States.Id
+    WHERE Cases.CaseBody LIKE \"%{}%\"
+    ORDER BY States.Abbr
+    '''.format(word)
+
+    results = cur.execute(statement)
+    result_list = results.fetchall()
+
+    return result_list # list of tuples: (state abbr, state name, case name, case abbr, court name, court abbr)
+
+'''
+Line chart (https://www.plot.ly/python/line-charts/) displaying the frequency of one or more particular words or phrases (specified by the user) in the full text of cases from all courts over a period of time.
+
+SELECT Cases.DecisionDate, COUNT(*)
+FROM Cases
+JOIN DistrictCourts
+ON Cases.CourtId = DistrictCourts.Id
+JOIN States
+ON DistrictCourts.StateId = States.Id
+WHERE Cases.CaseBody LIKE "%women%"
+GROUP BY Cases.DecisionDate
+'''
+
+def get_freq_by_time_for(list_of_words):
+    conn = sqlite.connect(DBNAME)
+    cur = conn.cursor()
+    statement = '''
+    SELECT DecisionDate, CaseBody
+    FROM Cases
+    '''
+    results = cur.execute(statement)
+    result_list = results.fetchall() # list of tuples representing every case: (date, full text)
+
+    date_dictionary = {} # date_dictionary will have dates as keys, list of words all words from that day as values
+    for result in result_list:
+        if result[0] not in date_dictionary:
+            date_dictionary[result[0]] = result[1].split()
+        else:
+            val = date_dictionary[result[0]]
+            val += result[1].split() # append all the new words
+            date_dictionary[result[0]] = val
+
+    list_of_dicts = []
+
+    for word in list_of_words:
+        word_dict = {}
+        for date in list(date_dictionary.keys()):
+            count = 0
+            for token in date_dictionary[date]:
+                if token == word:
+                    count += 1
+            word_dict[date] = count/len(date_dictionary[date])
+        list_of_dicts.append(word_dict)
+
+    return list_of_dicts # list of dictionaries corresponding to each word where key is date and value is frequency of the word 
+
+if __name__=="__main__":
+    pass
+    # create_db()
