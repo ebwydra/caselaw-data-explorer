@@ -3,7 +3,11 @@ from bs4 import BeautifulSoup
 import json
 import csv
 import sqlite3 as sqlite
-from secrets import CAPAPI_TOKEN
+from secrets import *
+import plotly
+import plotly.plotly as py
+
+plotly.tools.set_credentials_file(username=PLOTLY_USERNAME, api_key=PLOTLY_API_KEY)
 
 DBNAME = 'law.db'
 STATESCSV = 'state_table.csv'
@@ -73,7 +77,7 @@ def get_cap_data():
             resp_dict = CACHE_DICTION[url]
         else:
             # print("Getting new data")
-            resp = requests.get(url, headers = {'Authorization': CAPAPI_TOKEN})
+            resp = requests.get(url, headers = {'Authorization': "Token " + CAPAPI_KEY})
             resp_dict = json.loads(resp.text)
             CACHE_DICTION[url] = resp_dict
             f = open(CACHE_FNAME, 'w')
@@ -420,6 +424,58 @@ def get_freq_by_time_for(list_of_words):
         list_of_dicts.append(word_dict)
 
     return list_of_dicts # list of dictionaries corresponding to each word where key is date and value is frequency of the word
+
+''' Functions that display data '''
+
+'''
+A choropleth map (https://www.plot.ly/python/choropleth-maps/) of the United States that presents the number or percentage of district/territorial court cases from each state (that is, the sum of the count of cases in each of the districts comprising the state).
+
+Helper function: get_cases_by_state() returns list of tuples: (state_abbr, state_name, count, percent)
+'''
+
+def make_map_of_cases(): # (state_abbr, state_name, count, percent)
+
+    list_of_cases_by_state = get_cases_by_state()
+
+    state_list = []
+    z_list = []
+
+    for state in list_of_cases_by_state:
+        state_list.append(state[0])
+        z_list.append(state[2])
+
+    scl = [[0.0, 'rgb(242,240,247)'],[0.2, 'rgb(218,218,235)'],[0.4, 'rgb(188,189,220)'],[0.6, 'rgb(158,154,200)'],[0.8, 'rgb(117,107,177)'],[1.0, 'rgb(84,39,143)']]
+
+    data = [ dict(
+        type='choropleth',
+        colorscale = scl,
+        autocolorscale = False,
+        locations = state_list,
+        z = z_list,
+        locationmode = 'USA-states',
+        # text = df['text'],
+        marker = dict(
+            line = dict (
+                color = 'rgb(255,255,255)',
+                width = 2
+            ) ),
+        colorbar = dict(
+            title = "Number of Cases")
+        ) ]
+
+    layout = dict(
+        title = 'Number of U.S. District Court Cases by State',
+        geo = dict(
+            scope='usa',
+            projection=dict( type='albers usa' ),
+            showlakes = True,
+            lakecolor = 'rgb(255, 255, 255)'),
+             )
+
+    fig = dict(data=data, layout=layout)
+    py.plot(fig, filename='total-cases-by-state')
+
+make_map_of_cases()
 
 if __name__=="__main__":
     create_db()
