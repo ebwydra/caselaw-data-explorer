@@ -2,6 +2,8 @@
 
 Harvard University recently completed a massive project to expand access to U.S. caselaw by "digitizing roughly 40 million pages of court decisions contained in roughly 40,000 bound volumes owned by the Harvard Law School Library." This program uses data obtained from the Caselaw Access Project (CAP) API to provide insights into U.S. federal caselaw, particularly at the district court level.
 
+Copyright (c), 2018, E. Brennan-Wydra.
+
 ## Data sources
 
 ### Caselaw Access Project (CAP) API
