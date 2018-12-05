@@ -73,3 +73,25 @@ When you run the 'capapi.py' file, you will be greeted by a message that reads '
 ### Important data processing functions
 
 The program supports four different displays of data, each of which is supported by a function that queries the 'law.db' database and returns the specified information. These functions are then called within the data presentation functions, which further transform the data into the formats required by plotly to support the relevant presentation option.
+
+#### all_cases
+
+The all_cases display option uses a function called 'get_cases_by_state()' which takes no arguments, queries the database, and returns a list of tuples representing each state and the number of district court cases from all districts within that state. The 'make_map_of_cases()' function calls the 'get_cases_by_state()' function within it and converts the resulting list of tuples into two lists (one of state abbreviations and one of the number of cases) which are then used to create a Plotly choropleth map (https://www.plot.ly/python/choropleth-maps/) of the United States.
+
+#### cases_matching <word>
+
+The cases_matching display option relies on a function called 'get_list_of_cases_containing(word)' which takes a string (consisting of a single word) as an argument, queries the database, and returns a list of tuples representing every court case that contains the specified word in the full-text, with the full title and short title of the case, the full name and citation for the district/territorial court it was in, and the name and abbreviation of the state/territory.
+
+The 'make_table_with_word(word)' function takes a string (consisting of a single word) as an argument, passes the string to the 'get_list_of_cases_containing(word)' function, processes the resulting list of tuples into a four lists of strings corresponding to each column of the table to be displayed (the full case name, short title of the case, court information, and state information), and makes a Plotly table (https://www.plot.ly/python/table/).
+
+#### map_matching <word>
+
+The map_matching display option uses a function called 'get_percent_by_state_containing(word)' which takes a string (consisting of a single word) as an argument, queries the database, and returns a list of tuples representing states, with the abbreviation of the state and the percentage of cases from that state that contain the specified word in their full text.
+
+The 'make_map_of_word(word)' function takes a string (consisting of a single word) as an argument, passes the string to the 'get_percent_by_state_containing(word)' function, processes the resulting list of tuples into two lists (one of state abbreviations, and one of percentages), and creates a Plotly choropleth map (see 'make_map_of_cases()' above).
+
+#### time_plot <word or list of words>
+
+The time_plot display option uses a function called 'get_freq_by_time_for(list_of_words)' which takes a list of (one or more) strings as an argument, queries the database, and returns a list of dictionaries representing each word. The keys of the dictionaries are dates, and their values are the percentage of all of the words from all of the full case texts from that date that match the specified word. (There is one dictionary for each word in the list of words).
+
+The 'make_line_chart_for_list(list_of_words)' function takes a list of (one or more) strings as an argument, passes the list of strings to the 'get_freq_by_time_for(list_of_words)' function, creates a list of dates (from the keys of any dictionary) and one or more lists of frequencies (the values from each dictionary), and generates a Plotly line chart (https://www.plot.ly/python/line-charts/) with dates along the x axis and frequency along the y axis.
